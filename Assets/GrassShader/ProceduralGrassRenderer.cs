@@ -10,6 +10,7 @@ public class ProceduralGrassRenderer : MonoBehaviour {
     [System.Serializable]
     public class GrassSettings {
         public int maxSegments = 3;
+        public int meshSubdivisions = 0;
         public float maxBendAngle = 0;
         public float bladeCurvature = 1;
         public float bladeHeight = 1;

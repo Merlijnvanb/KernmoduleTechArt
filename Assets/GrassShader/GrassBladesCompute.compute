@@ -122,34 +122,8 @@ DrawVertex SetupBladePoint(float3 anchorWS, float2 dimensions, float3x3 tsToWs, 
     return output;
 }
 
-[numthreads(128, 1, 1)]
-void Main(uint3 id : SV_DispatchThreadID) {
-
-    if ((int)id.x >= _NumSourceTriangles) {
-        return;
-    }
-
-    int triStart = id.x * 3;
-
-    SourceVertex a = _SourceVertices[_SourceTriangles[triStart]];
-    SourceVertex b = _SourceVertices[_SourceTriangles[triStart + 1]];
-    SourceVertex c = _SourceVertices[_SourceTriangles[triStart + 2]];
-
-    if (!a.color.r > 0 ||
-        !b.color.r > 0 ||
-        !c.color.r > 0)
-    {
-        return;
-    }
-
-    float3 positionWS, normalWS;
-    float3x3 tsToWs;
-    GetCenterAndBasis(
-        a,
-        b,
-        c,
-        positionWS, normalWS, tsToWs);
-
+void EmitBladeAtPosition(float3 positionWS, float3 normalWS, float3x3 tsToWs)
+{
     float2 dimensions = GetBladeDimensions(positionWS);
 
     float3x3 twistMatrix = AngleAxis3x3(rand(positionWS, 2) * PI * 2, float3(0, 0, 1));
@@ -196,4 +170,32 @@ void Main(uint3 id : SV_DispatchThreadID) {
     }
     
     InterlockedAdd(_IndirectArgsBuffer[0].numVerticesPerInstance, numTriangles * 3);
+}
+
+[numthreads(128, 1, 1)]
+void Main(uint3 id : SV_DispatchThreadID) {
+
+    if ((int)id.x >= _NumSourceTriangles) {
+        return;
+    }
+
+    int triStart = id.x * 3;
+
+    SourceVertex a = _SourceVertices[_SourceTriangles[triStart]];
+    SourceVertex b = _SourceVertices[_SourceTriangles[triStart + 1]];
+    SourceVertex c = _SourceVertices[_SourceTriangles[triStart + 2]];
+
+    if (!a.color.r > 0 ||
+        !b.color.r > 0 ||
+        !c.color.r > 0)
+    {
+        return;
+    }
+    
+    float3 positionWS, normalWS;
+    float3x3 tsToWs;
+    GetCenterAndBasis(a, b, c, positionWS, normalWS, tsToWs);
+
+    EmitBladeAtPosition(positionWS, normalWS, tsToWs);
+    
 }

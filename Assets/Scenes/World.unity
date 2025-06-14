@@ -5607,12 +5607,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47dba2dbebe831245a57263d6c7ae2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceMesh: {fileID: -4550683992047327297, guid: b17142e0fe3cbfb4b9b3902f23382f94,
-    type: 3}
+  sourceMesh: {fileID: 4300000, guid: 74835def077b0d04aac86e692b69efd3, type: 2}
   grassComputeShader: {fileID: 7200000, guid: ccbfddd9cf97eaf47ab88ac165de02b2, type: 3}
   material: {fileID: 2100000, guid: fb0aea3bebf68d74ba27af0cc9076dad, type: 2}
   grassSettings:
     maxSegments: 7
+    meshSubdivisions: 0
     maxBendAngle: 0.18
     bladeCurvature: 1.22
     bladeHeight: 1.25
@@ -17285,11 +17285,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47dba2dbebe831245a57263d6c7ae2f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sourceMesh: {fileID: 4300000, guid: 74835def077b0d04aac86e692b69efd3, type: 2}
+  sourceMesh: {fileID: 4300000, guid: 4da2976a7dde12a44b587b78d51e8d6f, type: 2}
   grassComputeShader: {fileID: 7200000, guid: ccbfddd9cf97eaf47ab88ac165de02b2, type: 3}
   material: {fileID: 2100000, guid: 847bcbf72b86aa74189bcf9605be8ed1, type: 2}
   grassSettings:
     maxSegments: 7
+    meshSubdivisions: 0
     maxBendAngle: 0.14
     bladeCurvature: 1.22
     bladeHeight: 1.25
