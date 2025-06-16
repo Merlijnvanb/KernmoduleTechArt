@@ -10,7 +10,6 @@ public class ProceduralGrassRenderer : MonoBehaviour {
     [System.Serializable]
     public class GrassSettings {
         public int maxSegments = 3;
-        public int meshSubdivisions = 0;
         public float maxBendAngle = 0;
         public float bladeCurvature = 1;
         public float bladeHeight = 1;
@@ -29,10 +28,13 @@ public class ProceduralGrassRenderer : MonoBehaviour {
     }
 
     [SerializeField] private Mesh sourceMesh = default;
+    [SerializeField] private int meshSubdivisions = 0;
     [SerializeField] private ComputeShader grassComputeShader = default;
     [SerializeField] private Material material = default;
 
     [SerializeField] private GrassSettings grassSettings = default;
+    
+    private Mesh instantiatedMesh = default;
 
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     private struct SourceVertex {
@@ -72,18 +74,24 @@ public class ProceduralGrassRenderer : MonoBehaviour {
 
         // Vector3[] positions = GetVertices(out var vertIndices);
         // int[] tris = GetTriangles(vertIndices);
+
+        instantiatedMesh = Instantiate(sourceMesh);
+        MeshHelper.Subdivide(instantiatedMesh, meshSubdivisions);
         
-        Vector3[] positions = sourceMesh.vertices;
-        Color[] colors = sourceMesh.colors;
-        int[] tris = sourceMesh.triangles;
+        Vector3[] positions = instantiatedMesh.vertices;
+        Color[] colors = instantiatedMesh.colors;
+        int[] tris = instantiatedMesh.triangles;
+
+        bool hasColors = colors != null && colors.Length == positions.Length;
 
         SourceVertex[] vertices = new SourceVertex[positions.Length];
-        for(int i = 0; i < vertices.Length; i++) {
+        for (int i = 0; i < vertices.Length; i++) {
             vertices[i] = new SourceVertex() {
                 position = positions[i],
-                color = colors[i]
+                color = hasColors ? colors[i] : Color.white // Or any default fallback color
             };
         }
+
         int numSourceTriangles = tris.Length / 3;
         int maxBladeSegments = Mathf.Max(1, grassSettings.maxSegments);
         int maxBladeTriangles = (maxBladeSegments - 1) * 2 + 1;
@@ -126,7 +134,7 @@ public class ProceduralGrassRenderer : MonoBehaviour {
         Debug.Log(dispatchSize);
         Debug.Log(threadGroupSize);
 
-        localBounds = sourceMesh.bounds;
+        localBounds = instantiatedMesh.bounds;
         localBounds.Expand(Mathf.Max(grassSettings.bladeHeight + grassSettings.bladeHeightVariance, 
             grassSettings.bladeWidth + grassSettings.bladeWidthVariance));
     }
@@ -188,51 +196,51 @@ public class ProceduralGrassRenderer : MonoBehaviour {
             null, null, ShadowCastingMode.Off, true, gameObject.layer);
     }
 
-    private Vector3[] GetVertices(out HashSet<int> vertIndices)
-    {
-        var meshVerts = sourceMesh.vertices;
-        var vertColors = sourceMesh.colors;
-        
-        Debug.Log(meshVerts.Length);
-        Debug.Log(vertColors.Length);
-        
-        var usedIndices = new HashSet<int>();
-        var usedVerts = new List<Vector3>();
+    // private Vector3[] GetVertices(out HashSet<int> vertIndices)
+    // {
+    //     var meshVerts = instantiatedMesh.vertices;
+    //     var vertColors = instantiatedMesh.colors;
+    //     
+    //     Debug.Log(meshVerts.Length);
+    //     Debug.Log(vertColors.Length);
+    //     
+    //     var usedIndices = new HashSet<int>();
+    //     var usedVerts = new List<Vector3>();
+    //
+    //     for (int i = 0; i < meshVerts.Length; i++)
+    //     {
+    //         if (vertColors[i].r > 0f)
+    //         {
+    //             usedVerts.Add(meshVerts[i]);
+    //             usedIndices.Add(i);
+    //         }
+    //     }
+    //     
+    //     vertIndices = usedIndices;
+    //     return usedVerts.ToArray();
+    // }
 
-        for (int i = 0; i < meshVerts.Length; i++)
-        {
-            if (vertColors[i].r > 0f)
-            {
-                usedVerts.Add(meshVerts[i]);
-                usedIndices.Add(i);
-            }
-        }
-        
-        vertIndices = usedIndices;
-        return usedVerts.ToArray();
-    }
-
-    private int[] GetTriangles(HashSet<int> vertIndices)
-    {
-        var triangles = sourceMesh.triangles;
-        var filteredTris = new List<int>();
-
-        for (int i = 0; i < triangles.Length; i += 3)
-        {
-            var a = triangles[i];
-            var b = triangles[i + 1];
-            var c = triangles[i + 2];
-
-            if (!vertIndices.Contains(a) ||
-                !vertIndices.Contains(b) ||
-                !vertIndices.Contains(c))
-                continue;
-            
-            filteredTris.Add(a);
-            filteredTris.Add(b);
-            filteredTris.Add(c);
-        }
-        
-        return filteredTris.ToArray();
-    }
+    // private int[] GetTriangles(HashSet<int> vertIndices)
+    // {
+    //     var triangles = sourceMesh.triangles;
+    //     var filteredTris = new List<int>();
+    //
+    //     for (int i = 0; i < triangles.Length; i += 3)
+    //     {
+    //         var a = triangles[i];
+    //         var b = triangles[i + 1];
+    //         var c = triangles[i + 2];
+    //
+    //         if (!vertIndices.Contains(a) ||
+    //             !vertIndices.Contains(b) ||
+    //             !vertIndices.Contains(c))
+    //             continue;
+    //         
+    //         filteredTris.Add(a);
+    //         filteredTris.Add(b);
+    //         filteredTris.Add(c);
+    //     }
+    //     
+    //     return filteredTris.ToArray();
+    // }
 }

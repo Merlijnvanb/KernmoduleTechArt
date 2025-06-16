@@ -197,5 +197,4 @@ void Main(uint3 id : SV_DispatchThreadID) {
     GetCenterAndBasis(a, b, c, positionWS, normalWS, tsToWs);
 
     EmitBladeAtPosition(positionWS, normalWS, tsToWs);
-    
 }
