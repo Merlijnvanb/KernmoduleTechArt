@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class NewGrassDispatcher : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public int fieldSize = 100;
+        
+    void OnEnable()
     {
         
     }
